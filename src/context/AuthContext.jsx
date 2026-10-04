@@ -3,27 +3,57 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  const login = (email, password) => {
-    if (email === "leonardo.aceituno89@unach.mx" && password === "9235") {
-      setUser({
-        nombre: "Leonardo",
-        email: email,
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token");
+  });
+
+  const login = async (email, password) => {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-      return true;
-    }
+      const data = await response.json();
 
-    return false;
+      if (!response.ok || !data.success) {
+        return false;
+      }
+
+      setUser(data.user);
+      setToken(data.token);
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
+      return true;
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+      return false;
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

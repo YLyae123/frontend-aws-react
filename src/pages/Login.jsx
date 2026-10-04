@@ -6,14 +6,20 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const accesoCorrecto = login(email, password);
+    setError("");
+    setLoading(true);
+
+    const accesoCorrecto = await login(email, password);
+
+    setLoading(false);
 
     if (accesoCorrecto) {
       navigate("/dashboard");
@@ -56,8 +62,12 @@ function Login() {
 
           {error && <div className="login-error">{error}</div>}
 
-          <button type="submit" className="login-button">
-            Iniciar sesión
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? "Validando..." : "Iniciar sesión"}
           </button>
         </form>
 
