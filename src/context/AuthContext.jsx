@@ -1,23 +1,34 @@
-const login = (email, password) => {
-  if (email === "leonardo.89@unach.mx" && password === "9235") {
-    setUser({
-      nombre: "Leonardo",
-      email: email,
-    });
+import { createContext, useContext, useState } from "react";
 
-    return true;
-  }
+const AuthContext = createContext();
 
-  return false;
-};const login = (email, password) => {
-  if (email === "leonardo.89@unach.mx" && password === "9235") {
-    setUser({
-      nombre: "Leonardo",
-      email: email,
-    });
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
 
-    return true;
-  }
+  const login = (email, password) => {
+    if (email === "leonardo.aceituno89@unach.mx" && password === "9235") {
+      setUser({
+        nombre: "Leonardo",
+        email: email,
+      });
 
-  return false;
-};
+      return true;
+    }
+
+    return false;
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
